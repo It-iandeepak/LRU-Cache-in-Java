@@ -1,6 +1,6 @@
 # 🧠 LRU Cache Implementation in Java
 
-This project implements an **LRU (Least Recently Used) Cache** in Java using a combination of a **LinkedList** and a **HashMap** for efficient O(1) access and update operations.
+This project implements an **LRU (Least Recently Used) Cache** in Java using a **custom Doubly Linked List** and a **HashMap** for efficient O(1) access and update operations.
 
 ---
 
@@ -13,7 +13,9 @@ An **LRU Cache** discards the **least recently used items first** when the cache
 ## 📂 Features
 
 - ✅ O(1) time complexity for `getValue` and `insertKeyValue` operations
-- ✅ Uses `HashMap` and `LinkedList` from Java Collections Framework
+- ✅ Uses `HashMap` for O(1) key lookup
+- ✅ Custom **Doubly Linked List** with `prev` and `next` pointers
+- ✅ Dummy `head` and `tail` nodes to eliminate edge case null checks
 - ✅ Handles cache eviction automatically when capacity is full
 - ✅ Tracks the most recently used item
 
@@ -21,10 +23,14 @@ An **LRU Cache** discards the **least recently used items first** when the cache
 
 ## 🧱 Implementation Details
 
-- **`LinkedList<Node>`** maintains the order of usage (front = most recent).
-- **`HashMap<String, ListIterator<Node>>`** provides O(1) lookup of nodes.
-- **Custom class `Node`** stores the key-value pair.
-- If a key is accessed or updated, it moves to the front of the list.
+- **Custom `Node` class** stores the key, value, and `prev`/`next` pointers for doubly linked list traversal.
+- **`HashMap<String, Node>`** provides O(1) direct access to any node.
+- **Dummy `head` node** always points to the most recently used item.
+- **Dummy `tail` node** always points just after the least recently used item.
+- **`removeNode()`** — detaches a node from its current position in O(1).
+- **`addToFront()`** — inserts a node right after head (most recent position) in O(1).
+- If a key is accessed or updated, it is moved to the front of the list.
+- If capacity is full, the node just before `tail` (LRU item) is evicted.
 
 ---
 
@@ -37,10 +43,10 @@ lru.insertKeyValue("apple", 20);
 lru.insertKeyValue("banana", 30);
 System.out.println(lru.mostRecentKey()); // Outputs: banana
 
-lru.insertKeyValue("mango", 40);
-System.out.println(lru.mostRecentKey()); // Outputs: mango (updated = moved to front)
+lru.insertKeyValue("mango", 40);         // Update mango — moves to front
+System.out.println(lru.mostRecentKey()); // Outputs: mango
 
-Integer val = lru.getValue("mango");     // Access mango (now most recent)
+Integer val = lru.getValue("mango");     // Access mango (most recent)
 if (val != null) {
     System.out.println("Order of Mango " + val); // 40
 }
@@ -51,6 +57,18 @@ if (lru.getValue("apple") == null) {
     System.out.println("apple doesn't exist");
 }
 ```
+
+---
+
+## 🧠 Doubly Linked List Structure
+
+```
+[HEAD] <-> [most recent] <-> [...] <-> [least recent] <-> [TAIL]
+```
+
+- Insertions and updates always go next to `HEAD`
+- Evictions always happen from next to `TAIL`
+- `prev` and `next` pointers allow O(1) removal from any position
 
 ---
 
@@ -83,9 +101,11 @@ apple doesn't exist
 
 ## 📚 Concepts Covered
 
-- Java Collections Framework: `LinkedList`, `HashMap`, `ListIterator`
-- Cache design pattern
-- OOP in Java (classes, encapsulation)
+- Custom Doubly Linked List (`prev` / `next` pointers)
+- `HashMap` for O(1) node lookup
+- Cache design pattern (LRU eviction policy)
+- OOP in Java (classes, encapsulation, helper methods)
+- Dummy head/tail technique for clean pointer manipulation
 
 ---
 
